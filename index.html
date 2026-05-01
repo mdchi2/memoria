@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -182,13 +183,16 @@
         }
     </style>
 </head>
+
 <body>
 
     <div class="container" id="main-container">
         <!-- Start Screen -->
         <div id="start-screen">
             <h1>Memoria de Palabras</h1>
-            <p class="instructions">Se te mostrarán 10 palabras, una por una, cada 1 segundo. Memorízalas. Luego, tendrás que encontrarlas entre 30 opciones.</p>
+            <p style="font-size: 0.9rem; margin-top: -15px; margin-bottom: 20px; color: #94a3b8;">by Mariano Damian ver 1.0</p>
+            <p class="instructions">Se te mostrarán 10 palabras, una por una, cada 2 segundos. Memorízalas. Luego,
+                tendrás que encontrarlas entre 30 opciones.</p>
             <button class="btn" id="start-btn">Comenzar Juego</button>
         </div>
 
@@ -205,7 +209,8 @@
         <!-- Selection Screen -->
         <div id="selection-screen" class="hidden">
             <h1>Encuentra las palabras</h1>
-            <p class="instructions">Selecciona las 10 palabras que viste anteriormente (<span id="selection-counter">0</span>/10)</p>
+            <p class="instructions">Selecciona las 10 palabras que viste anteriormente (<span
+                    id="selection-counter">0</span>/10)</p>
             <div class="word-grid" id="word-grid">
                 <!-- Words will be injected here -->
             </div>
@@ -217,10 +222,10 @@
 
     <script>
         const wordPool = [
-            "Gato", "Perro", "Casa", "Árbol", "Cielo", "Agua", "Fuego", "Tierra", "Sol", "Luna", 
-            "Estrella", "Montaña", "Río", "Mar", "Bosque", "Flor", "Pájaro", "Nube", "Viento", "Nieve", 
-            "Lluvia", "Camino", "Piedra", "Arena", "Ciudad", "Pueblo", "Calle", "Coche", "Tren", "Avión", 
-            "Barco", "Libro", "Mesa", "Silla", "Cama", "Puerta", "Ventana", "Reloj", "Espejo", "Cuadro", 
+            "Gato", "Perro", "Casa", "Árbol", "Cielo", "Agua", "Fuego", "Tierra", "Sol", "Luna",
+            "Estrella", "Montaña", "Río", "Mar", "Bosque", "Flor", "Pájaro", "Nube", "Viento", "Nieve",
+            "Lluvia", "Camino", "Piedra", "Arena", "Ciudad", "Pueblo", "Calle", "Coche", "Tren", "Avión",
+            "Barco", "Libro", "Mesa", "Silla", "Cama", "Puerta", "Ventana", "Reloj", "Espejo", "Cuadro",
             "Lápiz", "Papel", "Música", "Canción", "Baile", "Juego", "Sonrisa", "Mirada", "Voz", "Palabra",
             "Mente", "Tiempo", "Luz", "Sombra", "Color", "Forma", "Fuerza", "Paz", "Amor", "Vida"
         ];
@@ -269,14 +274,14 @@
         function startGame() {
             const shuffledPool = shuffleArray([...wordPool]);
             wordsToRemember = shuffledPool.slice(0, 10);
-            
+
             const remainingPool = shuffledPool.slice(10);
             const distractorWords = remainingPool.slice(0, 20);
             allDisplayedWords = shuffleArray([...wordsToRemember, ...distractorWords]);
 
             currentIndex = 0;
             selectedWords.clear();
-            
+
             showScreen('memorize');
             elements.progressContainer.style.display = 'block';
             showNextWord();
@@ -290,24 +295,24 @@
 
             elements.wordCounter.textContent = currentIndex + 1;
             elements.wordDisplay.textContent = wordsToRemember[currentIndex];
-            
+
             elements.wordDisplay.classList.remove('visible');
             elements.progressBar.style.transition = 'none';
             elements.progressBar.style.width = '0%';
-            
+
             // Allow DOM to update before starting transition
             setTimeout(() => {
                 elements.wordDisplay.classList.add('visible');
-                elements.progressBar.style.transition = 'width 1s linear';
+                elements.progressBar.style.transition = 'width 2s linear';
                 elements.progressBar.style.width = '100%';
             }, 50);
 
             currentIndex++;
-            
+
             setTimeout(() => {
                 elements.wordDisplay.classList.remove('visible');
                 setTimeout(showNextWord, 200); // 0.2s pause before next word
-            }, 1000); // 1 second duration
+            }, 2000); // 2 seconds duration
         }
 
         function startSelectionPhase() {
@@ -324,7 +329,7 @@
                 card.className = 'word-card';
                 card.textContent = word;
                 card.dataset.word = word;
-                
+
                 card.addEventListener('click', () => toggleWordSelection(card, word));
                 elements.wordGrid.appendChild(card);
             });
@@ -342,14 +347,14 @@
                     card.classList.add('selected');
                 }
             }
-            
+
             elements.selectionCounter.textContent = selectedWords.size;
             elements.checkBtn.disabled = selectedWords.size !== 10;
         }
 
         function checkResults() {
             let correctCount = 0;
-            
+
             const cards = document.querySelectorAll('.word-card');
             cards.forEach(card => {
                 const word = card.dataset.word;
@@ -364,14 +369,14 @@
                 } else if (isSelected && !isCorrectWord) {
                     card.classList.add('incorrect');
                 } else if (!isSelected && isCorrectWord) {
-                    card.classList.add('missed'); 
+                    card.classList.add('missed');
                 }
             });
 
             elements.resultText.textContent = `Has acertado ${correctCount} de 10 palabras.`;
             elements.resultText.style.color = correctCount > 7 ? 'var(--success-color)' : (correctCount > 4 ? '#fbbf24' : 'var(--error-color)');
             elements.resultText.classList.remove('hidden');
-            
+
             elements.checkBtn.classList.add('hidden');
             elements.restartBtn.classList.remove('hidden');
         }
@@ -382,4 +387,5 @@
 
     </script>
 </body>
+
 </html>

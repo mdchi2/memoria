@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comparador de Precios - Supermercados Argentinos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --success: #10b981;
+
+            --carrefour: #00387b;
+            --jumbo: #00813e;
+            --changomas: #005aa9;
+            --coto: #e3000f;
+            --disco: #ed1c24;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .search-container {
+            width: 100%;
+            max-width: 600px;
+            position: relative;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border-radius: 9999px;
+            border: 1px solid #334155;
+            background-color: var(--card-bg);
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .search-input:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Ranking Section */
+        .ranking-container {
+            width: 100%;
+            max-width: 1200px;
+            margin-bottom: 3rem;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid #334155;
+            animation: fadeInDown 0.6s ease-out;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .ranking-title {
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--text-main);
+        }
+
+        .ranking-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+
+        .ranking-item {
+            background-color: rgba(15, 23, 42, 0.5);
+            border-radius: 12px;
+            padding: 1rem;
+            border-top: 4px solid;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.5rem;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .ranking-item:hover {
+            transform: translateY(-3px);
+            background-color: rgba(51, 65, 85, 0.5);
+        }
+
+        .ranking-pos {
+            font-size: 1.8rem;
+            font-weight: 800;
+        }
+
+        .ranking-item.pos-1 .ranking-pos { color: gold; }
+        .ranking-item.pos-2 .ranking-pos { color: silver; }
+        .ranking-item.pos-3 .ranking-pos { color: #cd7f32; }
+        .ranking-item.pos-4 .ranking-pos, .ranking-item.pos-5 .ranking-pos { color: var(--text-muted); }
+
+        .ranking-item.pos-1::after {
+            content: '🏆';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.5rem;
+        }
+
+        .ranking-total {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--success);
+        }
+        
+        .ranking-wins {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            line-height: 1.3;
+            margin-top: 0.5rem;
+        }
+
+        /* Products Grid */
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        .product-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #334155;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            border-color: #475569;
+        }
+
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #334155;
+        }
+
+        .price-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            flex-grow: 1;
+        }
+
+        .price-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background-color: rgba(15, 23, 42, 0.5);
+            transition: background-color 0.2s ease;
+        }
+
+        .price-item:hover {
+            background-color: rgba(51, 65, 85, 0.5);
+        }
+
+        .price-item.cheapest {
+            border: 1px solid var(--success);
+            background-color: rgba(16, 185, 129, 0.1);
+            position: relative;
+        }
+
+        .cheapest-badge {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background-color: var(--success);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 999px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .supermarket-name {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .price-value {
+            font-weight: 800;
+            font-size: 1.1rem;
+        }
+
+        /* Animations */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        .disclaimer {
+            margin-top: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            max-width: 600px;
+            background-color: rgba(51, 65, 85, 0.3);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px dashed #475569;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h1>Comparador de Precios</h1>
+        <p class="subtitle">Ahorrá en tu compra. Buscá y compará en tiempo real.*</p>
+    </header>
+
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-input"
+            placeholder="Buscar producto (ej: Leche, Arroz, Coca Cola)..." autocomplete="off">
+    </div>
+
+    <!-- Sección de Ranking -->
+    <div class="ranking-container" id="rankingContainer">
+        <h2 class="ranking-title">Ranking de Supermercados (Canasta Básica)</h2>
+        <div class="ranking-list" id="rankingList">
+            <!-- Los rankings se inyectarán aquí vía JS -->
+        </div>
+    </div>
+
+    <div class="grid-container" id="resultsContainer">
+        <!-- Los resultados se inyectarán aquí vía JS -->
+    </div>
+
+    <div class="disclaimer">
+        *Nota: Esta es una interfaz de demostración (Mockup). Los supermercados argentinos no proporcionan APIs
+        públicas, por lo que para que esta aplicación funcione con datos reales en producción, se requiere desarrollar
+        un Backend de scraping.
+    </div>
+
+    <script>
+        const mockProducts = [
+            { id: 1, name: "Leche Entera La Serenísima 1L (Sachet)", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 1150}, {supermarket: "Coto", color: "var(--coto)", price: 1180}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1200}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1250}, {supermarket: "Disco", color: "var(--disco)", price: 1260}] },
+            { id: 2, name: "Yerba Mate Playadito 500g", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 2100}, {supermarket: "Coto", color: "var(--coto)", price: 2150}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 2200}, {supermarket: "Disco", color: "var(--disco)", price: 2350}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 2400}] },
+            { id: 3, name: "Coca-Cola Sabor Original 1.5L", prices: [{supermarket: "Coto", color: "var(--coto)", price: 1800}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 1850}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1900}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1950}, {supermarket: "Disco", color: "var(--disco)", price: 1950}] },
+            { id: 4, name: "Arroz Blanco Gallo Grano Largo 1kg", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 1450}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1490}, {supermarket: "Coto", color: "var(--coto)", price: 1520}, {supermarket: "Disco", color: "var(--disco)", price: 1600}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1650}] },
+            { id: 5, name: "Aceite de Girasol Natura 1.5L", prices: [{supermarket: "Coto", color: "var(--coto)", price: 2900}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 2950}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 3000}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 3150}, {supermarket: "Disco", color: "var(--disco)", price: 3200}] },
+            { id: 6, name: "Fideos Tirabuzón Lucchetti 500g", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 850}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 890}, {supermarket: "Coto", color: "var(--coto)", price: 920}, {supermarket: "Disco", color: "var(--disco)", price: 980}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1050}] },
+            { id: 7, name: "Puré de Tomate Arcor 520g", prices: [{supermarket: "Coto", color: "var(--coto)", price: 650}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 680}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 700}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 750}, {supermarket: "Disco", color: "var(--disco)", price: 780}] },
+            { id: 8, name: "Azúcar Ledesma Clásica 1kg", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 900}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 930}, {supermarket: "Coto", color: "var(--coto)", price: 950}, {supermarket: "Disco", color: "var(--disco)", price: 990}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1020}] },
+            { id: 9, name: "Harina de Trigo Pureza 0000 1kg", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 820}, {supermarket: "Coto", color: "var(--coto)", price: 850}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 880}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 950}, {supermarket: "Disco", color: "var(--disco)", price: 960}] },
+            { id: 10, name: "Café Molido La Virginia Clásico 500g", prices: [{supermarket: "Coto", color: "var(--coto)", price: 4200}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 4350}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 4500}, {supermarket: "Disco", color: "var(--disco)", price: 4700}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 4800}] },
+            { id: 11, name: "Manteca La Serenísima 200g", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 1750}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1800}, {supermarket: "Coto", color: "var(--coto)", price: 1850}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1950}, {supermarket: "Disco", color: "var(--disco)", price: 1980}] },
+            { id: 12, name: "Queso Crema Casancrem Clásico 290g", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 2200}, {supermarket: "Coto", color: "var(--coto)", price: 2250}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 2300}, {supermarket: "Disco", color: "var(--disco)", price: 2450}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 2500}] },
+            { id: 13, name: "Pan Lactal Blanco Fargo 400g", prices: [{supermarket: "Coto", color: "var(--coto)", price: 1450}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 1500}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1550}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1650}, {supermarket: "Disco", color: "var(--disco)", price: 1700}] },
+            { id: 14, name: "Galletitas de Agua Express 3x108g", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 1100}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1150}, {supermarket: "Coto", color: "var(--coto)", price: 1180}, {supermarket: "Disco", color: "var(--disco)", price: 1250}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1300}] },
+            { id: 15, name: "Atún Desmenuzado al Natural La Campagnola 170g", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 1500}, {supermarket: "Coto", color: "var(--coto)", price: 1550}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 1600}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1750}, {supermarket: "Disco", color: "var(--disco)", price: 1800}] },
+            { id: 16, name: "Mayonesa Hellmann's Clásica 475g", prices: [{supermarket: "Coto", color: "var(--coto)", price: 1350}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 1400}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1450}, {supermarket: "Disco", color: "var(--disco)", price: 1550}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1600}] },
+            { id: 17, name: "Sal Fina Celusal 500g", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 650}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 680}, {supermarket: "Coto", color: "var(--coto)", price: 700}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 780}, {supermarket: "Disco", color: "var(--disco)", price: 800}] },
+            { id: 18, name: "Polenta Mágica Quaker 500g", prices: [{supermarket: "Carrefour", color: "var(--carrefour)", price: 850}, {supermarket: "Coto", color: "var(--coto)", price: 880}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 900}, {supermarket: "Disco", color: "var(--disco)", price: 980}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1050}] },
+            { id: 19, name: "Mermelada de Durazno La Campagnola 454g", prices: [{supermarket: "Coto", color: "var(--coto)", price: 1600}, {supermarket: "Chango Mas", color: "var(--changomas)", price: 1650}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 1700}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1850}, {supermarket: "Disco", color: "var(--disco)", price: 1900}] },
+            { id: 20, name: "Cerveza Quilmes Clásica Lata 473ml", prices: [{supermarket: "Chango Mas", color: "var(--changomas)", price: 950}, {supermarket: "Carrefour", color: "var(--carrefour)", price: 980}, {supermarket: "Coto", color: "var(--coto)", price: 1000}, {supermarket: "Disco", color: "var(--disco)", price: 1100}, {supermarket: "Jumbo", color: "var(--jumbo)", price: 1150}] }
+        ];
+
+        const container = document.getElementById('resultsContainer');
+        const searchInput = document.getElementById('searchInput');
+        const rankingList = document.getElementById('rankingList');
+
+        // Formateador de moneda argentina
+        const formatter = new Intl.NumberFormat('es-AR', {
+            style: 'currency',
+            currency: 'ARS',
+            maximumFractionDigits: 0
+        });
+
+        function renderRanking() {
+            const totals = {};
+            
+            mockProducts.forEach(product => {
+                const sortedPrices = [...product.prices].sort((a, b) => a.price - b.price);
+                const cheapestPrice = sortedPrices[0].price;
+
+                product.prices.forEach(p => {
+                    if (!totals[p.supermarket]) {
+                        totals[p.supermarket] = { 
+                            supermarket: p.supermarket, 
+                            color: p.color, 
+                            total: 0, 
+                            wins: 0 
+                        };
+                    }
+                    totals[p.supermarket].total += p.price;
+                    
+                    if (p.price === cheapestPrice) {
+                        totals[p.supermarket].wins += 1;
+                    }
+                });
+            });
+
+            // Ordenar de menor costo total a mayor costo total
+            const ranking = Object.values(totals).sort((a, b) => a.total - b.total);
+            
+            rankingList.innerHTML = '';
+
+            ranking.forEach((item, index) => {
+                const pos = index + 1;
+                const card = document.createElement('div');
+                card.className = `ranking-item pos-${pos}`;
+                card.style.borderTopColor = item.color;
+                
+                card.innerHTML = `
+                    <div class="ranking-pos">#${pos}</div>
+                    <div class="supermarket-name" style="justify-content: center; margin: 0.25rem 0;">
+                        <div class="indicator" style="background-color: ${item.color}"></div>
+                        <span style="color: var(--text-main); font-size: 1.1rem;">${item.supermarket}</span>
+                    </div>
+                    <div class="ranking-total">${formatter.format(item.total)}</div>
+                    <div class="ranking-wins">Total canasta (${mockProducts.length} prod.)<br>${item.wins} veces el más barato</div>
+                `;
+                rankingList.appendChild(card);
+            });
+        }
+
+        function renderProducts(products) {
+            container.innerHTML = '';
+
+            if (products.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1 / -1; text-align: center; color: var(--text-muted);">No se encontraron productos para esta búsqueda en tiempo real.</p>';
+                return;
+            }
+
+            products.forEach((product, index) => {
+                // Ordenar precios de menor a mayor
+                const sortedPrices = [...product.prices].sort((a, b) => a.price - b.price);
+                const cheapestPrice = sortedPrices[0].price;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                // Añadir un pequeño retraso a la animación para efecto cascada
+                card.style.animationDelay = `${0.2 + (index * 0.1)}s`;
+
+                let pricesHTML = '';
+                sortedPrices.forEach(p => {
+                    const isCheapest = p.price === cheapestPrice;
+                    pricesHTML += `
+                        <li class="price-item ${isCheapest ? 'cheapest' : ''}">
+                            ${isCheapest ? '<span class="cheapest-badge">MÁS BARATO</span>' : ''}
+                            <div class="supermarket-name">
+                                <div class="indicator" style="background-color: ${p.color}"></div>
+                                ${p.supermarket}
+                            </div>
+                            <span class="price-value ${isCheapest ? 'text-success' : ''}" style="${isCheapest ? 'color: var(--success);' : ''}">
+                                ${formatter.format(p.price)}
+                            </span>
+                        </li>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <h3 class="product-title">${product.name}</h3>
+                    <ul class="price-list">
+                        ${pricesHTML}
+                    </ul>
+                `;
+
+                container.appendChild(card);
+            });
+        }
+
+        // Render inicial
+        renderRanking();
+        renderProducts(mockProducts);
+
+        // Funcionalidad de búsqueda
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filteredProducts = mockProducts.filter(p => 
+                p.name.toLowerCase().includes(searchTerm)
+            );
+            renderProducts(filteredProducts);
+        });
+    </script>
+</body>
+
+</html>

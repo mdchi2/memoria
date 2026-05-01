@@ -190,8 +190,10 @@
         <!-- Start Screen -->
         <div id="start-screen">
             <h1>Memoria de Palabras</h1>
-            <p style="font-size: 0.9rem; margin-top: -15px; margin-bottom: 20px; color: #94a3b8;">by Mariano Damian ver 1.0</p>
-            <p class="instructions">Se te mostrarán 10 palabras, una por una, cada 2 segundos. Memorízalas. Luego,
+            <p style="font-size: 0.9rem; margin-top: -15px; margin-bottom: 20px; color: #94a3b8;">by Mariano Damian ver
+                1.0</p>
+            <p class="instructions">Se te mostrarán 10 palabras, una por una, cada 3 segundos en 2 rondas. Memorízalas.
+                Luego,
                 tendrás que encontrarlas entre 30 opciones.</p>
             <button class="btn" id="start-btn">Comenzar Juego</button>
         </div>
@@ -199,7 +201,8 @@
         <!-- Memorize Screen -->
         <div id="memorize-screen" class="hidden">
             <h1>Memoriza...</h1>
-            <p class="instructions">Palabra <span id="word-counter">1</span> de 10</p>
+            <p class="instructions">Palabra <span id="word-counter">1</span> de 10 (Ronda <span
+                    id="round-counter">1</span>/2)</p>
             <div id="word-display">Palabra</div>
             <div class="progress-bar-container" id="progress-container">
                 <div class="progress-bar" id="progress-bar"></div>
@@ -234,6 +237,7 @@
         let allDisplayedWords = [];
         let selectedWords = new Set();
         let currentIndex = 0;
+        let repetitions = 0;
 
         const screens = {
             start: document.getElementById('start-screen'),
@@ -245,6 +249,7 @@
             startBtn: document.getElementById('start-btn'),
             wordDisplay: document.getElementById('word-display'),
             wordCounter: document.getElementById('word-counter'),
+            roundCounter: document.getElementById('round-counter'),
             progressBar: document.getElementById('progress-bar'),
             progressContainer: document.getElementById('progress-container'),
             wordGrid: document.getElementById('word-grid'),
@@ -280,6 +285,8 @@
             allDisplayedWords = shuffleArray([...wordsToRemember, ...distractorWords]);
 
             currentIndex = 0;
+            repetitions = 0;
+            if (elements.roundCounter) elements.roundCounter.textContent = '1';
             selectedWords.clear();
 
             showScreen('memorize');
@@ -289,6 +296,13 @@
 
         function showNextWord() {
             if (currentIndex >= wordsToRemember.length) {
+                repetitions++;
+                if (repetitions < 2) {
+                    currentIndex = 0;
+                    if (elements.roundCounter) elements.roundCounter.textContent = (repetitions + 1).toString();
+                    setTimeout(showNextWord, 500);
+                    return;
+                }
                 startSelectionPhase();
                 return;
             }
@@ -303,7 +317,7 @@
             // Allow DOM to update before starting transition
             setTimeout(() => {
                 elements.wordDisplay.classList.add('visible');
-                elements.progressBar.style.transition = 'width 2s linear';
+                elements.progressBar.style.transition = 'width 3s linear';
                 elements.progressBar.style.width = '100%';
             }, 50);
 
@@ -312,7 +326,7 @@
             setTimeout(() => {
                 elements.wordDisplay.classList.remove('visible');
                 setTimeout(showNextWord, 200); // 0.2s pause before next word
-            }, 2000); // 2 seconds duration
+            }, 3000); // 3 seconds duration
         }
 
         function startSelectionPhase() {
